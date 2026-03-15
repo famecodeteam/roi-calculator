@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "react-scripts start",
-    "build": "npm run build",
+    "build": "react-scripts build",
     "start": "react-scripts start"
   },
   "eslintConfig": {
