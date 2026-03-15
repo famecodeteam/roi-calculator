@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, TrendingUp, DollarSign, Mail } from 'lucide-react';
+import { ChevronDown, Mail } from 'lucide-react';
 
 export default function PodcastROICalculator() {
   const [step, setStep] = useState('calculator');
