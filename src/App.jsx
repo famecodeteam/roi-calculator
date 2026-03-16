@@ -335,6 +335,23 @@ export default function App() {
     boxSizing: 'border-box'
   };
 
+  const footerStyle = {
+    fontSize: '12px',
+    color: '#999',
+    marginTop: '32px',
+    textAlign: 'center',
+    paddingTop: '20px',
+    borderTop: '1px solid #eee',
+    fontFamily: 'Figtree, sans-serif !important'
+  };
+
+  const footerLinkStyle = {
+    color: '#ff467c',
+    textDecoration: 'none',
+    fontWeight: '600',
+    fontFamily: 'Figtree, sans-serif !important'
+  };
+
   if (screen === 'calculator') {
     return (
       <>
@@ -487,6 +504,10 @@ export default function App() {
                 </button>
               </div>
             </div>
+
+            <div style={footerStyle}>
+              Powered by <a href="https://fame.so" target="_blank" rel="noopener noreferrer" style={footerLinkStyle}>Fame</a>
+            </div>
           </div>
         </div>
       </>
@@ -519,6 +540,10 @@ export default function App() {
               Send My Report
             </button>
           </form>
+
+          <div style={footerStyle}>
+            Powered by <a href="https://fame.so" target="_blank" rel="noopener noreferrer" style={footerLinkStyle}>Fame</a>
+          </div>
         </div>
       </div>
     );
@@ -542,6 +567,10 @@ export default function App() {
           >
             Calculate Again
           </button>
+
+          <div style={footerStyle}>
+            Powered by <a href="https://fame.so" target="_blank" rel="noopener noreferrer" style={footerLinkStyle}>Fame</a>
+          </div>
         </div>
       </div>
     );
