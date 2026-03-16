@@ -111,6 +111,20 @@ export default function App() {
     alignItems: 'start'
   };
 
+  const headerBoxStyle = {
+    display: 'inline-block',
+    background: '#ff467c',
+    color: 'white',
+    padding: '8px 16px',
+    borderRadius: '6px',
+    fontSize: '12px',
+    fontWeight: '700',
+    marginBottom: '20px',
+    fontFamily: 'Figtree, sans-serif !important',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px'
+  };
+
   const headerStyle = {
     fontSize: '32px',
     fontWeight: '700',
@@ -327,6 +341,7 @@ export default function App() {
         <style>{sliderStyleWithThumb}</style>
         <div style={containerStyle}>
           <div style={cardStyle}>
+            <div style={headerBoxStyle}>B2B Podcast ROI Calculator</div>
             <h1 style={headerStyle}>Will Your B2B Podcast Make Money?</h1>
             <p style={descriptionStyle}>
               Calculate your projected revenue impact and pipeline value based on your show's strategy, metrics and cadence.
@@ -485,6 +500,7 @@ export default function App() {
           <button style={exitButtonStyle} onClick={() => setScreen('calculator')}>
             <X size={24} />
           </button>
+          <div style={headerBoxStyle}>B2B Podcast ROI Calculator</div>
           <h2 style={headerStyle}>Get Your Full Report</h2>
           <p style={descriptionStyle}>
             Enter your email to receive detailed insights and a custom action plan.
@@ -512,6 +528,7 @@ export default function App() {
     return (
       <div style={containerStyle}>
         <div style={cardStyle}>
+          <div style={headerBoxStyle}>B2B Podcast ROI Calculator</div>
           <h2 style={headerStyle}>Thank You!</h2>
           <p style={descriptionStyle}>
             We've sent your report to {email}. Check your inbox for next steps.
