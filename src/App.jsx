@@ -88,6 +88,7 @@ export default function App() {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #f8f1eb 0%, #fff5f1 100%)',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '20px',
