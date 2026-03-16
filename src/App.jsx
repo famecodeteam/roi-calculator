@@ -426,7 +426,7 @@ export default function App() {
                 </div>
 
                 <div style={sliderContainerStyle}>
-                  <div style={labelStyle}>Interested in bringing on guests?</div>
+                  <div style={labelStyle}>Are you interested in bringing on guests that could be customers or partners?</div>
                   <div style={toggleContainerStyle}>
                     <button
                       style={toggleButtonStyle(interestedInGuests === true)}
