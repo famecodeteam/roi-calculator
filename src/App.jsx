@@ -54,28 +54,24 @@ export default function App() {
     const results = calculateResults();
     
     try {
-      const zapierPayload = {
-        email: email,
-        episodesPerMonth: episodesPerMonth,
-        avgDownloads: avgDownloads,
-        guestSeniority: guestSeniority,
-        dealSize: dealSize,
-        closeRate: closeRate,
-        monthlyPodcastCost: monthlyPodcastCost,
-        interestedInGuests: interestedInGuests ? 'Yes' : 'No',
-        projectedLeads: results.monthlyLeads,
-        projectedDeals: results.annualDeals,
-        projectedPipelineValue: results.pipelineValue,
-        roi: results.roi,
-        timestamp: new Date().toISOString()
-      };
+      const formData = new URLSearchParams();
+      formData.append('email', email);
+      formData.append('episodesPerMonth', episodesPerMonth);
+      formData.append('avgDownloads', avgDownloads);
+      formData.append('guestSeniority', guestSeniority);
+      formData.append('dealSize', dealSize);
+      formData.append('closeRate', closeRate);
+      formData.append('monthlyPodcastCost', monthlyPodcastCost);
+      formData.append('interestedInGuests', interestedInGuests ? 'Yes' : 'No');
+      formData.append('projectedLeads', results.monthlyLeads);
+      formData.append('projectedDeals', results.annualDeals);
+      formData.append('projectedPipelineValue', results.pipelineValue);
+      formData.append('roi', results.roi);
+      formData.append('timestamp', new Date().toISOString());
 
       await fetch('https://hooks.zapier.com/hooks/catch/5322222/upo96yz/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(zapierPayload)
+        body: formData
       });
 
       setScreen('thankyou');
