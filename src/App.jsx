@@ -70,7 +70,7 @@ export default function App() {
         timestamp: new Date().toISOString()
       };
 
-      await fetch('https://hooks.zapier.com/hooks/catch/YOUR_ZAPIER_HOOK_ID_HERE/', {
+      await fetch('https://hooks.zapier.com/hooks/catch/5322222/upo96yz/', {
         method: 'POST',
         body: JSON.stringify(zapierPayload)
       });
