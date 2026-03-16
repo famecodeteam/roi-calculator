@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Mail, X } from 'lucide-react';
+import { Mail, X } from 'lucide-react';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('welcome');
