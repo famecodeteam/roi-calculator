@@ -2,36 +2,15 @@ import React, { useState } from 'react';
 import { Mail, X } from 'lucide-react';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState('welcome');
-  const [episodesPerMonth, setEpisodesPerMonth] = useState('');
-  const [avgDownloads, setAvgDownloads] = useState('');
-  const [guestSeniority, setGuestSeniority] = useState('');
-  const [dealSize, setDealSize] = useState('');
-  const [closeRate, setCloseRate] = useState('');
-  const [monthlyPodcastCost, setMonthlyPodcastCost] = useState('');
-  const [interestedInGuests, setInterestedInGuests] = useState(null);
+  const [screen, setScreen] = useState('calculator');
+  const [episodesPerMonth, setEpisodesPerMonth] = useState(4);
+  const [avgDownloads, setAvgDownloads] = useState(5000);
+  const [guestSeniority, setGuestSeniority] = useState('vp');
+  const [dealSize, setDealSize] = useState(50000);
+  const [closeRate, setCloseRate] = useState(15);
+  const [monthlyPodcastCost, setMonthlyPodcastCost] = useState(2000);
+  const [interestedInGuests, setInterestedInGuests] = useState(true);
   const [email, setEmail] = useState('');
-  const [projectedLeads, setProjectedLeads] = useState(0);
-  const [projectedDeals, setProjectedDeals] = useState(0);
-  const [projectedPipelineValue, setProjectedPipelineValue] = useState(0);
-  const [roi, setRoi] = useState(0);
-
-  const handleNext = () => {
-    if (currentScreen === 'welcome') {
-      setCurrentScreen('metrics');
-    } else if (currentScreen === 'metrics') {
-      setCurrentScreen('engagement');
-    } else if (currentScreen === 'engagement') {
-      if (interestedInGuests === null) {
-        alert('Please answer the guest question before proceeding.');
-        return;
-      }
-      setCurrentScreen('costs');
-    } else if (currentScreen === 'costs') {
-      calculateResults();
-      setCurrentScreen('results');
-    }
-  };
 
   const calculateResults = () => {
     const episodes = parseInt(episodesPerMonth) || 0;
@@ -40,12 +19,12 @@ export default function App() {
     const close = parseInt(closeRate) || 0;
     const cost = parseInt(monthlyPodcastCost) || 0;
 
-    let baseConversionRate = 0.0001; // 0.01%
+    let baseConversionRate = 0.0001;
     
     if (guestSeniority === 'cLevel' && interestedInGuests) {
-      baseConversionRate = 0.0002; // 0.02% for C-Level with guests
+      baseConversionRate = 0.0002;
     } else if (guestSeniority === 'vp' && interestedInGuests) {
-      baseConversionRate = 0.00015; // 0.015% for VP with guests
+      baseConversionRate = 0.00015;
     }
 
     const monthlyImpressions = episodes * downloads;
@@ -61,14 +40,18 @@ export default function App() {
     const costAnnual = cost * 12;
     const roiValue = costAnnual > 0 ? ((pipeline / costAnnual) * 100).toFixed(0) : 0;
 
-    setProjectedLeads(leads);
-    setProjectedDeals(deals);
-    setProjectedPipelineValue(pipeline);
-    setRoi(roiValue);
+    return {
+      monthlyLeads: leads,
+      annualDeals: deals,
+      pipelineValue: pipeline,
+      roi: roiValue
+    };
   };
 
-  const handleSubmit = async (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
+    
+    const results = calculateResults();
     
     try {
       const zapierPayload = {
@@ -80,10 +63,10 @@ export default function App() {
         closeRate: closeRate,
         monthlyPodcastCost: monthlyPodcastCost,
         interestedInGuests: interestedInGuests ? 'Yes' : 'No',
-        projectedLeads: projectedLeads,
-        projectedDeals: projectedDeals,
-        projectedPipelineValue: projectedPipelineValue,
-        roi: roi,
+        projectedLeads: results.monthlyLeads,
+        projectedDeals: results.annualDeals,
+        projectedPipelineValue: results.pipelineValue,
+        roi: results.roi,
         timestamp: new Date().toISOString()
       };
 
@@ -92,24 +75,14 @@ export default function App() {
         body: JSON.stringify(zapierPayload)
       });
 
-      setCurrentScreen('thankyou');
+      setScreen('thankyou');
     } catch (error) {
       console.error('Error sending to Zapier:', error);
-      setCurrentScreen('thankyou');
+      setScreen('thankyou');
     }
   };
 
-  const handleExit = () => {
-    setCurrentScreen('welcome');
-    setEpisodesPerMonth('');
-    setAvgDownloads('');
-    setGuestSeniority('');
-    setDealSize('');
-    setCloseRate('');
-    setMonthlyPodcastCost('');
-    setInterestedInGuests(null);
-    setEmail('');
-  };
+  const results = calculateResults();
 
   const containerStyle = {
     minHeight: '100vh',
@@ -125,14 +98,14 @@ export default function App() {
     background: 'white',
     borderRadius: '12px',
     padding: '40px',
-    maxWidth: '600px',
+    maxWidth: '900px',
     width: '100%',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
     fontFamily: 'Figtree, sans-serif !important'
   };
 
   const headerStyle = {
-    fontSize: '28px',
+    fontSize: '32px',
     fontWeight: '700',
     color: '#2e2e2e',
     marginBottom: '12px',
@@ -147,55 +120,59 @@ export default function App() {
     fontFamily: 'Figtree, sans-serif !important'
   };
 
-  const inputStyle = {
+  const sliderContainerStyle = {
+    marginBottom: '32px'
+  };
+
+  const labelStyle = {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#2e2e2e',
+    marginBottom: '8px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontFamily: 'Figtree, sans-serif !important'
+  };
+
+  const valueStyle = {
+    fontSize: '16px',
+    fontWeight: '700',
+    color: '#ff467c',
+    fontFamily: 'Figtree, sans-serif !important'
+  };
+
+  const sliderStyle = {
     width: '100%',
-    padding: '12px 16px',
-    marginBottom: '20px',
+    height: '8px',
+    borderRadius: '4px',
+    background: '#e0e0e0',
+    outline: 'none',
+    WebkitAppearance: 'none',
+    appearance: 'none',
+    cursor: 'pointer'
+  };
+
+  const selectStyle = {
+    width: '100%',
+    padding: '12px',
+    marginBottom: '24px',
     border: '1px solid #ddd',
     borderRadius: '8px',
     fontSize: '16px',
     fontFamily: 'Figtree, sans-serif !important',
-    boxSizing: 'border-box'
-  };
-
-  const selectStyle = {
-    ...inputStyle,
     appearance: 'none',
-    paddingRight: '40px',
     backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'right 12px center',
-    backgroundSize: '20px'
+    backgroundSize: '20px',
+    paddingRight: '40px'
   };
 
-  const buttonStyle = {
-    width: '100%',
-    padding: '14px 24px',
-    marginTop: '24px',
-    background: '#ff467c',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    fontFamily: 'Figtree, sans-serif !important',
-    transition: 'background 0.3s ease'
-  };
-
-  const questionStyle = {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#2e2e2e',
-    marginBottom: '16px',
-    marginTop: '24px',
-    fontFamily: 'Figtree, sans-serif !important'
-  };
-
-  const buttonGroupStyle = {
+  const toggleContainerStyle = {
     display: 'flex',
     gap: '12px',
-    marginBottom: '24px'
+    marginBottom: '32px'
   };
 
   const toggleButtonStyle = (isSelected) => ({
@@ -210,25 +187,70 @@ export default function App() {
     fontFamily: 'Figtree, sans-serif !important'
   });
 
-  const resultStyle = {
-    background: '#f8f1eb',
+  const resultsGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '20px',
+    marginBottom: '32px',
     padding: '24px',
-    borderRadius: '8px',
-    marginBottom: '24px',
-    fontFamily: 'Figtree, sans-serif !important'
+    background: '#f8f1eb',
+    borderRadius: '8px'
+  };
+
+  const resultBoxStyle = {
+    textAlign: 'center'
   };
 
   const resultLabelStyle = {
-    fontSize: '14px',
+    fontSize: '13px',
     color: '#999',
     marginBottom: '8px',
     fontFamily: 'Figtree, sans-serif !important'
   };
 
   const resultValueStyle = {
-    fontSize: '32px',
+    fontSize: '28px',
     fontWeight: '700',
     color: '#ff467c',
+    fontFamily: 'Figtree, sans-serif !important'
+  };
+
+  const buttonStyle = {
+    width: '100%',
+    padding: '14px 24px',
+    background: '#ff467c',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    fontFamily: 'Figtree, sans-serif !important',
+    transition: 'background 0.3s ease'
+  };
+
+  const modalOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '20px',
+    zIndex: 1000
+  };
+
+  const modalStyle = {
+    background: 'white',
+    borderRadius: '12px',
+    padding: '40px',
+    maxWidth: '500px',
+    width: '100%',
+    position: 'relative',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
     fontFamily: 'Figtree, sans-serif !important'
   };
 
@@ -243,7 +265,18 @@ export default function App() {
     padding: '8px'
   };
 
-  if (currentScreen === 'welcome') {
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 16px',
+    marginBottom: '20px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontFamily: 'Figtree, sans-serif !important',
+    boxSizing: 'border-box'
+  };
+
+  if (screen === 'calculator') {
     return (
       <div style={containerStyle}>
         <div style={cardStyle}>
@@ -251,111 +284,139 @@ export default function App() {
           <p style={descriptionStyle}>
             Calculate your projected revenue impact and pipeline value based on your show's strategy, metrics and cadence.
           </p>
-          <button style={buttonStyle} onClick={handleNext}>
-            Start Calculation
-          </button>
-        </div>
-      </div>
-    );
-  }
 
-  if (currentScreen === 'metrics') {
-    return (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <h2 style={headerStyle}>Your Podcast Metrics</h2>
-          <p style={descriptionStyle}>Tell us about your show's current performance.</p>
-          <input
-            type="number"
-            placeholder="Episodes per month"
-            value={episodesPerMonth}
-            onChange={(e) => setEpisodesPerMonth(e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            type="number"
-            placeholder="Average downloads per episode"
-            value={avgDownloads}
-            onChange={(e) => setAvgDownloads(e.target.value)}
-            style={inputStyle}
-          />
-          <button style={buttonStyle} onClick={handleNext}>
-            Next
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (currentScreen === 'engagement') {
-    return (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <h2 style={headerStyle}>Audience & Guest Strategy</h2>
-          <p style={descriptionStyle}>Help us understand your audience composition.</p>
-          <label style={questionStyle}>Guest Seniority Level</label>
-          <select
-            value={guestSeniority}
-            onChange={(e) => setGuestSeniority(e.target.value)}
-            style={selectStyle}
-          >
-            <option value="">Select guest seniority...</option>
-            <option value="cLevel">C-Level (CEO, CTO, CMO)</option>
-            <option value="vp">VP / Senior Manager</option>
-            <option value="manager">Manager / IC</option>
-          </select>
-
-          <div style={questionStyle}>Are you interested in bringing on guests that could be customers or partners?</div>
-          <div style={buttonGroupStyle}>
-            <button
-              style={toggleButtonStyle(interestedInGuests === true)}
-              onClick={() => setInterestedInGuests(true)}
-            >
-              Yes
-            </button>
-            <button
-              style={toggleButtonStyle(interestedInGuests === false)}
-              onClick={() => setInterestedInGuests(false)}
-            >
-              No
-            </button>
+          <div style={sliderContainerStyle}>
+            <div style={labelStyle}>
+              <span>Episodes per month</span>
+              <span style={valueStyle}>{episodesPerMonth}</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="16"
+              value={episodesPerMonth}
+              onChange={(e) => setEpisodesPerMonth(parseInt(e.target.value))}
+              style={sliderStyle}
+            />
           </div>
-          <button style={buttonStyle} onClick={handleNext}>
-            Next
-          </button>
-        </div>
-      </div>
-    );
-  }
 
-  if (currentScreen === 'costs') {
-    return (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <h2 style={headerStyle}>Deal & Cost Details</h2>
-          <p style={descriptionStyle}>Help us understand your business model.</p>
-          <input
-            type="number"
-            placeholder="Average deal size ($)"
-            value={dealSize}
-            onChange={(e) => setDealSize(e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            type="number"
-            placeholder="Sales close rate (%)"
-            value={closeRate}
-            onChange={(e) => setCloseRate(e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            type="number"
-            placeholder="Monthly podcast cost ($)"
-            value={monthlyPodcastCost}
-            onChange={(e) => setMonthlyPodcastCost(e.target.value)}
-            style={inputStyle}
-          />
-          <button style={buttonStyle} onClick={handleNext}>
+          <div style={sliderContainerStyle}>
+            <div style={labelStyle}>
+              <span>Average downloads per episode</span>
+              <span style={valueStyle}>{avgDownloads.toLocaleString()}</span>
+            </div>
+            <input
+              type="range"
+              min="500"
+              max="50000"
+              step="500"
+              value={avgDownloads}
+              onChange={(e) => setAvgDownloads(parseInt(e.target.value))}
+              style={sliderStyle}
+            />
+          </div>
+
+          <div style={sliderContainerStyle}>
+            <div style={labelStyle}>
+              <span>Average deal size</span>
+              <span style={valueStyle}>${dealSize.toLocaleString()}</span>
+            </div>
+            <input
+              type="range"
+              min="10000"
+              max="500000"
+              step="5000"
+              value={dealSize}
+              onChange={(e) => setDealSize(parseInt(e.target.value))}
+              style={sliderStyle}
+            />
+          </div>
+
+          <div style={sliderContainerStyle}>
+            <div style={labelStyle}>
+              <span>Sales close rate (%)</span>
+              <span style={valueStyle}>{closeRate}%</span>
+            </div>
+            <input
+              type="range"
+              min="5"
+              max="50"
+              value={closeRate}
+              onChange={(e) => setCloseRate(parseInt(e.target.value))}
+              style={sliderStyle}
+            />
+          </div>
+
+          <div style={sliderContainerStyle}>
+            <div style={labelStyle}>
+              <span>Monthly podcast cost</span>
+              <span style={valueStyle}>${monthlyPodcastCost.toLocaleString()}</span>
+            </div>
+            <input
+              type="range"
+              min="500"
+              max="10000"
+              step="100"
+              value={monthlyPodcastCost}
+              onChange={(e) => setMonthlyPodcastCost(parseInt(e.target.value))}
+              style={sliderStyle}
+            />
+          </div>
+
+          <div style={sliderContainerStyle}>
+            <label style={labelStyle}>Guest seniority level</label>
+            <select
+              value={guestSeniority}
+              onChange={(e) => setGuestSeniority(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="cLevel">C-Level (CEO, CTO, CMO)</option>
+              <option value="vp">VP / Senior Manager</option>
+              <option value="manager">Manager / IC</option>
+            </select>
+          </div>
+
+          <div style={sliderContainerStyle}>
+            <div style={labelStyle}>Interested in bringing on guests?</div>
+            <div style={toggleContainerStyle}>
+              <button
+                style={toggleButtonStyle(interestedInGuests === true)}
+                onClick={() => setInterestedInGuests(true)}
+              >
+                Yes
+              </button>
+              <button
+                style={toggleButtonStyle(interestedInGuests === false)}
+                onClick={() => setInterestedInGuests(false)}
+              >
+                No
+              </button>
+            </div>
+          </div>
+
+          <div style={resultsGridStyle}>
+            <div style={resultBoxStyle}>
+              <div style={resultLabelStyle}>Monthly Leads</div>
+              <div style={resultValueStyle}>{results.monthlyLeads}</div>
+            </div>
+            <div style={resultBoxStyle}>
+              <div style={resultLabelStyle}>Annual Deals</div>
+              <div style={resultValueStyle}>{results.annualDeals}</div>
+            </div>
+            <div style={resultBoxStyle}>
+              <div style={resultLabelStyle}>Pipeline Value</div>
+              <div style={resultValueStyle}>${results.pipelineValue.toLocaleString()}</div>
+            </div>
+            <div style={resultBoxStyle}>
+              <div style={resultLabelStyle}>ROI</div>
+              <div style={resultValueStyle}>{results.roi}x</div>
+            </div>
+          </div>
+
+          <button
+            style={buttonStyle}
+            onClick={() => setScreen('email')}
+          >
             See Full Report
           </button>
         </div>
@@ -363,39 +424,18 @@ export default function App() {
     );
   }
 
-  if (currentScreen === 'results') {
+  if (screen === 'email') {
     return (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <button style={exitButtonStyle} onClick={handleExit}>
+      <div style={modalOverlayStyle}>
+        <div style={modalStyle}>
+          <button style={exitButtonStyle} onClick={() => setScreen('calculator')}>
             <X size={24} />
           </button>
-          <h2 style={headerStyle}>Your Podcast ROI</h2>
-          <p style={descriptionStyle}>Here's your projected annual impact.</p>
-          
-          <div style={resultStyle}>
-            <div style={resultLabelStyle}>Projected Monthly Leads</div>
-            <div style={resultValueStyle}>{projectedLeads}</div>
-          </div>
-
-          <div style={resultStyle}>
-            <div style={resultLabelStyle}>Projected Annual Deals Closed</div>
-            <div style={resultValueStyle}>{projectedDeals}</div>
-          </div>
-
-          <div style={resultStyle}>
-            <div style={resultLabelStyle}>Projected Annual Pipeline Value</div>
-            <div style={resultValueStyle}>${projectedPipelineValue.toLocaleString()}</div>
-          </div>
-
-          <div style={resultStyle}>
-            <div style={resultLabelStyle}>Annual ROI</div>
-            <div style={resultValueStyle}>{roi}x</div>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            <label style={questionStyle}>Get Your Full Report</label>
-            <p style={descriptionStyle}>Enter your email to see detailed insights and get a custom action plan.</p>
+          <h2 style={headerStyle}>Get Your Full Report</h2>
+          <p style={descriptionStyle}>
+            Enter your email to receive detailed insights and a custom action plan.
+          </p>
+          <form onSubmit={handleEmailSubmit}>
             <input
               type="email"
               placeholder="your@email.com"
@@ -405,7 +445,7 @@ export default function App() {
               style={inputStyle}
             />
             <button type="submit" style={buttonStyle}>
-              <Mail size={18} style={{ marginRight: '8px', verticalAlign: 'middle', fontFamily: 'Figtree, sans-serif !important' }} />
+              <Mail size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
               Send My Report
             </button>
           </form>
@@ -414,13 +454,21 @@ export default function App() {
     );
   }
 
-  if (currentScreen === 'thankyou') {
+  if (screen === 'thankyou') {
     return (
       <div style={containerStyle}>
         <div style={cardStyle}>
           <h2 style={headerStyle}>Thank You!</h2>
-          <p style={descriptionStyle}>We've sent your report to {email}. Check your inbox for next steps.</p>
-          <button style={buttonStyle} onClick={handleExit}>
+          <p style={descriptionStyle}>
+            We've sent your report to {email}. Check your inbox for next steps.
+          </p>
+          <button
+            style={buttonStyle}
+            onClick={() => {
+              setScreen('calculator');
+              setEmail('');
+            }}
+          >
             Calculate Again
           </button>
         </div>
