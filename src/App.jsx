@@ -98,10 +98,17 @@ export default function App() {
     background: 'white',
     borderRadius: '12px',
     padding: '40px',
-    maxWidth: '900px',
+    maxWidth: '1200px',
     width: '100%',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
     fontFamily: 'Figtree, sans-serif !important'
+  };
+
+  const layoutStyle = {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '40px',
+    alignItems: 'start'
   };
 
   const headerStyle = {
@@ -109,7 +116,8 @@ export default function App() {
     fontWeight: '700',
     color: '#2e2e2e',
     marginBottom: '12px',
-    fontFamily: 'Figtree, sans-serif !important'
+    fontFamily: 'Figtree, sans-serif !important',
+    gridColumn: '1 / -1'
   };
 
   const descriptionStyle = {
@@ -117,18 +125,19 @@ export default function App() {
     color: '#666',
     marginBottom: '32px',
     lineHeight: '1.6',
-    fontFamily: 'Figtree, sans-serif !important'
+    fontFamily: 'Figtree, sans-serif !important',
+    gridColumn: '1 / -1'
   };
 
   const sliderContainerStyle = {
-    marginBottom: '32px'
+    marginBottom: '28px'
   };
 
   const labelStyle = {
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '600',
     color: '#2e2e2e',
-    marginBottom: '8px',
+    marginBottom: '10px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -136,7 +145,7 @@ export default function App() {
   };
 
   const valueStyle = {
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: '700',
     color: '#ff467c',
     fontFamily: 'Figtree, sans-serif !important'
@@ -144,14 +153,48 @@ export default function App() {
 
   const sliderStyle = {
     width: '100%',
-    height: '8px',
-    borderRadius: '4px',
+    height: '6px',
+    borderRadius: '3px',
     background: '#e0e0e0',
     outline: 'none',
     WebkitAppearance: 'none',
     appearance: 'none',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    fontFamily: 'Figtree, sans-serif !important'
   };
+
+  // Add webkit styles for slider thumb
+  const sliderStyleWithThumb = `
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #e0e0e0;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ff467c;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(255, 70, 124, 0.3);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ff467c;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 4px rgba(255, 70, 124, 0.3);
+    }
+  `;
 
   const selectStyle = {
     width: '100%',
@@ -159,20 +202,20 @@ export default function App() {
     marginBottom: '24px',
     border: '1px solid #ddd',
     borderRadius: '8px',
-    fontSize: '16px',
+    fontSize: '14px',
     fontFamily: 'Figtree, sans-serif !important',
     appearance: 'none',
     backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'right 12px center',
-    backgroundSize: '20px',
+    backgroundSize: '18px',
     paddingRight: '40px'
   };
 
   const toggleContainerStyle = {
     display: 'flex',
     gap: '12px',
-    marginBottom: '32px'
+    marginBottom: '24px'
   };
 
   const toggleButtonStyle = (isSelected) => ({
@@ -184,32 +227,34 @@ export default function App() {
     cursor: 'pointer',
     fontWeight: '600',
     color: isSelected ? '#ff467c' : '#666',
-    fontFamily: 'Figtree, sans-serif !important'
+    fontFamily: 'Figtree, sans-serif !important',
+    fontSize: '14px'
   });
 
-  const resultsGridStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '20px',
-    marginBottom: '32px',
-    padding: '24px',
+  const resultsBoxStyle = {
     background: '#f8f1eb',
-    borderRadius: '8px'
+    padding: '28px',
+    borderRadius: '8px',
+    marginBottom: '24px'
   };
 
-  const resultBoxStyle = {
-    textAlign: 'center'
+  const resultItemStyle = {
+    marginBottom: '24px'
+  };
+
+  const resultItemLastStyle = {
+    marginBottom: 0
   };
 
   const resultLabelStyle = {
-    fontSize: '13px',
+    fontSize: '12px',
     color: '#999',
-    marginBottom: '8px',
+    marginBottom: '6px',
     fontFamily: 'Figtree, sans-serif !important'
   };
 
   const resultValueStyle = {
-    fontSize: '28px',
+    fontSize: '32px',
     fontWeight: '700',
     color: '#ff467c',
     fontFamily: 'Figtree, sans-serif !important'
@@ -278,149 +323,158 @@ export default function App() {
 
   if (screen === 'calculator') {
     return (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <h1 style={headerStyle}>Will Your B2B Podcast Make Money?</h1>
-          <p style={descriptionStyle}>
-            Calculate your projected revenue impact and pipeline value based on your show's strategy, metrics and cadence.
-          </p>
+      <>
+        <style>{sliderStyleWithThumb}</style>
+        <div style={containerStyle}>
+          <div style={cardStyle}>
+            <h1 style={headerStyle}>Will Your B2B Podcast Make Money?</h1>
+            <p style={descriptionStyle}>
+              Calculate your projected revenue impact and pipeline value based on your show's strategy, metrics and cadence.
+            </p>
 
-          <div style={sliderContainerStyle}>
-            <div style={labelStyle}>
-              <span>Episodes per month</span>
-              <span style={valueStyle}>{episodesPerMonth}</span>
+            <div style={layoutStyle}>
+              <div>
+                <div style={sliderContainerStyle}>
+                  <div style={labelStyle}>
+                    <span>Episodes per month</span>
+                    <span style={valueStyle}>{episodesPerMonth}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="16"
+                    value={episodesPerMonth}
+                    onChange={(e) => setEpisodesPerMonth(parseInt(e.target.value))}
+                    style={sliderStyle}
+                  />
+                </div>
+
+                <div style={sliderContainerStyle}>
+                  <div style={labelStyle}>
+                    <span>Average downloads per episode</span>
+                    <span style={valueStyle}>{avgDownloads.toLocaleString()}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="500"
+                    max="50000"
+                    step="500"
+                    value={avgDownloads}
+                    onChange={(e) => setAvgDownloads(parseInt(e.target.value))}
+                    style={sliderStyle}
+                  />
+                </div>
+
+                <div style={sliderContainerStyle}>
+                  <div style={labelStyle}>
+                    <span>Average deal size</span>
+                    <span style={valueStyle}>${dealSize.toLocaleString()}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10000"
+                    max="500000"
+                    step="5000"
+                    value={dealSize}
+                    onChange={(e) => setDealSize(parseInt(e.target.value))}
+                    style={sliderStyle}
+                  />
+                </div>
+
+                <div style={sliderContainerStyle}>
+                  <div style={labelStyle}>
+                    <span>Sales close rate (%)</span>
+                    <span style={valueStyle}>{closeRate}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="50"
+                    value={closeRate}
+                    onChange={(e) => setCloseRate(parseInt(e.target.value))}
+                    style={sliderStyle}
+                  />
+                </div>
+
+                <div style={sliderContainerStyle}>
+                  <div style={labelStyle}>
+                    <span>Monthly podcast cost</span>
+                    <span style={valueStyle}>${monthlyPodcastCost.toLocaleString()}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="500"
+                    max="10000"
+                    step="100"
+                    value={monthlyPodcastCost}
+                    onChange={(e) => setMonthlyPodcastCost(parseInt(e.target.value))}
+                    style={sliderStyle}
+                  />
+                </div>
+
+                <div style={sliderContainerStyle}>
+                  <div style={labelStyle}>Guest seniority level</div>
+                  <select
+                    value={guestSeniority}
+                    onChange={(e) => setGuestSeniority(e.target.value)}
+                    style={selectStyle}
+                  >
+                    <option value="cLevel">C-Level (CEO, CTO, CMO)</option>
+                    <option value="vp">VP / Senior Manager</option>
+                    <option value="manager">Manager / IC</option>
+                  </select>
+                </div>
+
+                <div style={sliderContainerStyle}>
+                  <div style={labelStyle}>Interested in bringing on guests?</div>
+                  <div style={toggleContainerStyle}>
+                    <button
+                      style={toggleButtonStyle(interestedInGuests === true)}
+                      onClick={() => setInterestedInGuests(true)}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      style={toggleButtonStyle(interestedInGuests === false)}
+                      onClick={() => setInterestedInGuests(false)}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div style={resultsBoxStyle}>
+                  <div style={resultItemStyle}>
+                    <div style={resultLabelStyle}>Monthly Leads</div>
+                    <div style={resultValueStyle}>{results.monthlyLeads}</div>
+                  </div>
+                  <div style={resultItemStyle}>
+                    <div style={resultLabelStyle}>Annual Deals Closed</div>
+                    <div style={resultValueStyle}>{results.annualDeals}</div>
+                  </div>
+                  <div style={resultItemStyle}>
+                    <div style={resultLabelStyle}>Pipeline Value</div>
+                    <div style={resultValueStyle}>${results.pipelineValue.toLocaleString()}</div>
+                  </div>
+                  <div style={resultItemLastStyle}>
+                    <div style={resultLabelStyle}>Annual ROI</div>
+                    <div style={resultValueStyle}>{results.roi}x</div>
+                  </div>
+                </div>
+
+                <button
+                  style={buttonStyle}
+                  onClick={() => setScreen('email')}
+                >
+                  See Full Report
+                </button>
+              </div>
             </div>
-            <input
-              type="range"
-              min="1"
-              max="16"
-              value={episodesPerMonth}
-              onChange={(e) => setEpisodesPerMonth(parseInt(e.target.value))}
-              style={sliderStyle}
-            />
           </div>
-
-          <div style={sliderContainerStyle}>
-            <div style={labelStyle}>
-              <span>Average downloads per episode</span>
-              <span style={valueStyle}>{avgDownloads.toLocaleString()}</span>
-            </div>
-            <input
-              type="range"
-              min="500"
-              max="50000"
-              step="500"
-              value={avgDownloads}
-              onChange={(e) => setAvgDownloads(parseInt(e.target.value))}
-              style={sliderStyle}
-            />
-          </div>
-
-          <div style={sliderContainerStyle}>
-            <div style={labelStyle}>
-              <span>Average deal size</span>
-              <span style={valueStyle}>${dealSize.toLocaleString()}</span>
-            </div>
-            <input
-              type="range"
-              min="10000"
-              max="500000"
-              step="5000"
-              value={dealSize}
-              onChange={(e) => setDealSize(parseInt(e.target.value))}
-              style={sliderStyle}
-            />
-          </div>
-
-          <div style={sliderContainerStyle}>
-            <div style={labelStyle}>
-              <span>Sales close rate (%)</span>
-              <span style={valueStyle}>{closeRate}%</span>
-            </div>
-            <input
-              type="range"
-              min="5"
-              max="50"
-              value={closeRate}
-              onChange={(e) => setCloseRate(parseInt(e.target.value))}
-              style={sliderStyle}
-            />
-          </div>
-
-          <div style={sliderContainerStyle}>
-            <div style={labelStyle}>
-              <span>Monthly podcast cost</span>
-              <span style={valueStyle}>${monthlyPodcastCost.toLocaleString()}</span>
-            </div>
-            <input
-              type="range"
-              min="500"
-              max="10000"
-              step="100"
-              value={monthlyPodcastCost}
-              onChange={(e) => setMonthlyPodcastCost(parseInt(e.target.value))}
-              style={sliderStyle}
-            />
-          </div>
-
-          <div style={sliderContainerStyle}>
-            <label style={labelStyle}>Guest seniority level</label>
-            <select
-              value={guestSeniority}
-              onChange={(e) => setGuestSeniority(e.target.value)}
-              style={selectStyle}
-            >
-              <option value="cLevel">C-Level (CEO, CTO, CMO)</option>
-              <option value="vp">VP / Senior Manager</option>
-              <option value="manager">Manager / IC</option>
-            </select>
-          </div>
-
-          <div style={sliderContainerStyle}>
-            <div style={labelStyle}>Interested in bringing on guests?</div>
-            <div style={toggleContainerStyle}>
-              <button
-                style={toggleButtonStyle(interestedInGuests === true)}
-                onClick={() => setInterestedInGuests(true)}
-              >
-                Yes
-              </button>
-              <button
-                style={toggleButtonStyle(interestedInGuests === false)}
-                onClick={() => setInterestedInGuests(false)}
-              >
-                No
-              </button>
-            </div>
-          </div>
-
-          <div style={resultsGridStyle}>
-            <div style={resultBoxStyle}>
-              <div style={resultLabelStyle}>Monthly Leads</div>
-              <div style={resultValueStyle}>{results.monthlyLeads}</div>
-            </div>
-            <div style={resultBoxStyle}>
-              <div style={resultLabelStyle}>Annual Deals</div>
-              <div style={resultValueStyle}>{results.annualDeals}</div>
-            </div>
-            <div style={resultBoxStyle}>
-              <div style={resultLabelStyle}>Pipeline Value</div>
-              <div style={resultValueStyle}>${results.pipelineValue.toLocaleString()}</div>
-            </div>
-            <div style={resultBoxStyle}>
-              <div style={resultLabelStyle}>ROI</div>
-              <div style={resultValueStyle}>{results.roi}x</div>
-            </div>
-          </div>
-
-          <button
-            style={buttonStyle}
-            onClick={() => setScreen('email')}
-          >
-            See Full Report
-          </button>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -445,7 +499,7 @@ export default function App() {
               style={inputStyle}
             />
             <button type="submit" style={buttonStyle}>
-              <Mail size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+              <Mail size={18} style={{ marginRight: '8px', verticalAlign: 'middle', fontFamily: 'Figtree, sans-serif !important' }} />
               Send My Report
             </button>
           </form>
