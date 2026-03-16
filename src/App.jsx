@@ -72,6 +72,9 @@ export default function App() {
 
       await fetch('https://hooks.zapier.com/hooks/catch/5322222/upo96yz/', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(zapierPayload)
       });
 
