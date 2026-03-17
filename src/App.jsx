@@ -38,7 +38,7 @@ export default function App() {
     const deals = Math.round(leads * (close / 100));
     const pipeline = deals * deal;
     const costAnnual = cost * 12;
-    const roiValue = costAnnual > 0 ? ((pipeline / costAnnual) * 100).toFixed(0) : 0;
+    const roiValue = costAnnual > 0 ? (pipeline / costAnnual).toFixed(2) : 0;
 
     return {
       monthlyLeads: leads,
