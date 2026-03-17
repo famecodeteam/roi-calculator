@@ -71,7 +71,8 @@ export default function App() {
       pipelineValue: results.pipelineValue,
       roi: results.roi,
       leverAction: lever.action,
-      leverRationale: lever.rationale
+      leverRationale: lever.rationale,
+      interestedInGuests: interestedInGuests ? 'Yes' : 'No'
     });
     const domain = typeof window !== 'undefined' && window.location.hostname
       ? window.location.hostname
@@ -762,10 +763,10 @@ export default function App() {
             <div style={leverTextStyle}>
               <strong>Why it matters:</strong> {reportData.lever.rationale}
             </div>
-            {getResourceForLever(reportData.lever.name) && (
+            {getResourceForLever(reportData.lever.name, reportData.inputs.interestedInGuests) && (
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255, 70, 124, 0.2)' }}>
                 <a
-                  href={getResourceForLever(reportData.lever.name).url}
+                  href={getResourceForLever(reportData.lever.name, reportData.inputs.interestedInGuests).url}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -776,7 +777,7 @@ export default function App() {
                     fontFamily: 'Figtree, sans-serif !important'
                   }}
                 >
-                  → Read: {getResourceForLever(reportData.lever.name).title}
+                  → Read: {getResourceForLever(reportData.lever.name, reportData.inputs.interestedInGuests).title}
                 </a>
               </div>
             )}

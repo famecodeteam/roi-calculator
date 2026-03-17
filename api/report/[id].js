@@ -4,29 +4,43 @@ import chrome from '@sparticuz/chromium';
 // Blog resources mapped to levers
 const blogResources = {
   'Average Downloads': {
-    title: 'How to Promote a Podcast - The Ultimate Guide',
-    url: 'https://www.fame.so/blog/how-to-promote-a-podcast'
+    title: 'How to Promote a Podcast',
+    url: 'https://www.fame.so/post/how-to-promote-a-podcast'
   },
   'Guest Strategy': {
-    title: 'How to Build Credibility With a B2B Podcast',
-    url: 'https://www.fame.so/blog/how-to-build-credibility-with-a-b2b-podcast'
+    withGuests: {
+      title: 'How to Find Podcast Guests',
+      url: 'https://www.bcast.fm/blog/how-to-find-podcast-guests'
+    },
+    withoutGuests: {
+      title: 'B2B Podcast ROI: Guest & Listener Conversion',
+      url: 'https://www.fame.so/post/b2b-podcast-roi-guest-listener-conversion'
+    }
   },
   'Monthly Podcast Cost': {
-    title: 'How to reduce customer acquisition cost: Practical strategies for 2026 growth',
-    url: 'https://www.fame.so/blog/how-to-reduce-customer-acquisition-cost'
+    title: 'B2B Podcast Agency ROI',
+    url: 'https://www.fame.so/post/b2b-podcast-agency-roi'
   },
   'Sales Close Rate': {
-    title: 'What Is Strategic Positioning And How To Master It In B2B',
-    url: 'https://www.fame.so/blog/strategic-positioning-b2b'
+    title: 'Podcast ROI Playbook',
+    url: 'https://www.fame.so/post/podcast-roi-playbook'
   },
   'Episodes Per Month': {
-    title: 'How to Promote a Podcast - The Ultimate Guide',
-    url: 'https://www.fame.so/blog/how-to-promote-a-podcast'
+    title: 'How to Find Podcast Guests',
+    url: 'https://www.bcast.fm/blog/how-to-find-podcast-guests'
   },
   'Deal Size': {
-    title: 'What Is Strategic Positioning And How To Master It In B2B',
-    url: 'https://www.fame.so/blog/strategic-positioning-b2b'
+    title: 'Podcast ROI Playbook',
+    url: 'https://www.fame.so/post/podcast-roi-playbook'
   }
+};
+
+const getResourceForLever = (leverName, interestedInGuests = true) => {
+  const resource = blogResources[leverName];
+  if (leverName === 'Guest Strategy' && resource) {
+    return interestedInGuests ? resource.withGuests : resource.withoutGuests;
+  }
+  return resource || null;
 };
 
 export default async function handler(req, res) {
@@ -50,11 +64,13 @@ export default async function handler(req, res) {
       pipelineValue,
       roi,
       leverAction,
-      leverRationale
+      leverRationale,
+      interestedInGuests
     } = req.query;
 
     // Get relevant blog resource for this lever
-    const blogResource = blogResources[biggestLever];
+    const interestedInGuestsBoolean = interestedInGuests === 'Yes';
+    const blogResource = getResourceForLever(biggestLever, interestedInGuestsBoolean);
 
     // Launch browser
     const browser = await puppeteer.launch({

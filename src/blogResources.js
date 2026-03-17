@@ -4,37 +4,51 @@
 
 export const blogResources = {
   'Average Downloads': {
-    title: 'How to Promote a Podcast - The Ultimate Guide',
-    url: 'https://www.fame.so/blog/how-to-promote-a-podcast',
+    title: 'How to Promote a Podcast',
+    url: 'https://www.fame.so/post/how-to-promote-a-podcast',
     description: 'Learn proven strategies to increase your episode downloads and grow your audience reach.'
   },
   'Guest Strategy': {
-    title: 'How to Build Credibility With a B2B Podcast',
-    url: 'https://www.fame.so/blog/how-to-build-credibility-with-a-b2b-podcast',
-    description: 'Discover how to establish authority and attract high-value guests to amplify your impact.'
+    withGuests: {
+      title: 'How to Find Podcast Guests',
+      url: 'https://www.bcast.fm/blog/how-to-find-podcast-guests',
+      description: 'Discover how to systematically attract and book high-value guests.'
+    },
+    withoutGuests: {
+      title: 'B2B Podcast ROI: Guest & Listener Conversion',
+      url: 'https://www.fame.so/post/b2b-podcast-roi-guest-listener-conversion',
+      description: 'Learn why developing a guest strategy significantly improves your podcast ROI.'
+    }
   },
   'Monthly Podcast Cost': {
-    title: 'How to reduce customer acquisition cost: Practical strategies for 2026 growth',
-    url: 'https://www.fame.so/blog/how-to-reduce-customer-acquisition-cost',
-    description: 'Find cost-efficient strategies to optimize your podcast production and maximize ROI.'
+    title: 'B2B Podcast Agency ROI',
+    url: 'https://www.fame.so/post/b2b-podcast-agency-roi',
+    description: 'Find a quality, cost-effective agency partner to optimize your podcast production.'
   },
   'Sales Close Rate': {
-    title: 'What Is Strategic Positioning And How To Master It In B2B',
-    url: 'https://www.fame.so/blog/strategic-positioning-b2b',
-    description: 'Master positioning to strengthen your sales process and close deals more effectively.'
+    title: 'Podcast ROI Playbook',
+    url: 'https://www.fame.so/post/podcast-roi-playbook',
+    description: 'Master the strategies to convert podcast listeners into high-value deals.'
   },
   'Episodes Per Month': {
-    title: 'How to Promote a Podcast - The Ultimate Guide',
-    url: 'https://www.fame.so/blog/how-to-promote-a-podcast',
-    description: 'Optimize your content strategy to maximize reach and engagement with consistent publishing.'
+    title: 'How to Find Podcast Guests',
+    url: 'https://www.bcast.fm/blog/how-to-find-podcast-guests',
+    description: 'Increase publishing frequency with a systematic guest booking strategy.'
   },
   'Deal Size': {
-    title: 'What Is Strategic Positioning And How To Master It In B2B',
-    url: 'https://www.fame.so/blog/strategic-positioning-b2b',
-    description: 'Build authority and credibility to command higher-value deals.'
+    title: 'Podcast ROI Playbook',
+    url: 'https://www.fame.so/post/podcast-roi-playbook',
+    description: 'Build authority and convert listeners into larger, higher-value deals.'
   }
 };
 
-export const getResourceForLever = (leverName) => {
-  return blogResources[leverName] || null;
+export const getResourceForLever = (leverName, interestedInGuests = true) => {
+  const resource = blogResources[leverName];
+
+  // Handle conditional Guest Strategy resource
+  if (leverName === 'Guest Strategy' && resource) {
+    return interestedInGuests ? resource.withGuests : resource.withoutGuests;
+  }
+
+  return resource || null;
 };
