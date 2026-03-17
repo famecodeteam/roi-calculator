@@ -79,7 +79,6 @@ export default function App() {
   };
 
   const identifyBiggestLever = () => {
-    const results = calculateResults();
     const metrics = [
       {
         name: 'Sales Close Rate',
