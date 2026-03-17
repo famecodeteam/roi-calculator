@@ -1,6 +1,7 @@
-import { jsPDF } from 'jspdf';
+import puppeteer from 'puppeteer-core';
+import chrome from '@sparticuz/chromium';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // Only allow GET requests
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -24,144 +25,207 @@ export default function handler(req, res) {
       leverRationale
     } = req.query;
 
-    // Create PDF
-    const doc = new jsPDF();
+    // Launch browser
+    const browser = await puppeteer.launch({
+      args: chrome.args,
+      defaultViewport: chrome.defaultViewport,
+      executablePath: await chrome.executablePath(),
+      headless: chrome.headless,
+    });
 
-    // Colors (Fame brand)
-    const pinkColor = [255, 70, 124]; // #ff467c
-    const darkColor = [46, 46, 46]; // #2e2e2e
-    const lightColor = [153, 153, 153]; // #999
-    const creamColor = [248, 241, 235]; // #f8f1eb
+    const page = await browser.newPage();
 
-    // Header
-    doc.setFillColor(...pinkColor);
-    doc.rect(0, 0, 210, 30, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('B2B PODCAST ROI CALCULATOR', 15, 18);
+    // HTML content matching the web design exactly
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <style>
+            * {
+              font-family: 'Figtree', sans-serif !important;
+              margin: 0;
+              padding: 0;
+            }
+            body {
+              background: #f8f1eb;
+              padding: 40px 20px;
+            }
+            .container {
+              max-width: 900px;
+              margin: 0 auto;
+              background: white;
+              border-radius: 12px;
+              padding: 40px;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .header-box {
+              display: inline-block;
+              background: #ff467c;
+              color: white;
+              padding: 8px 16px;
+              border-radius: 6px;
+              font-size: 12px;
+              font-weight: 700;
+              margin-bottom: 20px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            h1 {
+              font-size: 32px;
+              font-weight: 700;
+              color: #2e2e2e;
+              margin-bottom: 12px;
+            }
+            .subtitle {
+              font-size: 16px;
+              color: #666;
+              margin-bottom: 32px;
+              line-height: 1.6;
+            }
+            .results-box {
+              background: #f8f1eb;
+              padding: 28px;
+              border-radius: 8px;
+              margin-bottom: 32px;
+              border: 1px solid #e8e0d8;
+            }
+            .results-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 32px;
+            }
+            .result-item {
+              margin-bottom: 24px;
+            }
+            .result-label {
+              font-size: 12px;
+              color: #999;
+              margin-bottom: 6px;
+            }
+            .result-value {
+              font-size: 32px;
+              font-weight: 700;
+              color: #ff467c;
+            }
+            h2 {
+              font-size: 24px;
+              font-weight: 700;
+              color: #2e2e2e;
+              margin-top: 32px;
+              margin-bottom: 16px;
+            }
+            .lever-box {
+              background: #ffe8f0;
+              border: 2px solid #ff467c;
+              border-radius: 8px;
+              padding: 24px;
+              margin-top: 24px;
+            }
+            .lever-title {
+              font-size: 18px;
+              font-weight: 700;
+              color: #ff467c;
+              margin-bottom: 12px;
+            }
+            .lever-text {
+              font-size: 14px;
+              color: #2e2e2e;
+              line-height: 1.6;
+              margin-bottom: 12px;
+            }
+            .footer-text {
+              margin-top: 32px;
+              color: #666;
+              font-size: 14px;
+              line-height: 1.6;
+            }
+            .powered-by {
+              font-size: 12px;
+              color: #999;
+              margin-top: 20px;
+              text-align: center;
+            }
+            @media print {
+              body {
+                background: white;
+                padding: 0;
+              }
+              .container {
+                box-shadow: none;
+                max-width: 100%;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header-box">B2B PODCAST ROI CALCULATOR</div>
+            <h1>Your Podcast ROI Report</h1>
+            <p class="subtitle">Based on your podcast metrics, here's your projected annual impact:</p>
 
-    // Title
-    doc.setTextColor(...darkColor);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Your Podcast ROI Report', 15, 50);
+            <div class="results-box">
+              <div class="results-grid">
+                <div>
+                  <div class="result-item">
+                    <div class="result-label">Monthly Leads</div>
+                    <div class="result-value">${monthlyLeads}</div>
+                  </div>
+                  <div class="result-item">
+                    <div class="result-label">Pipeline Value</div>
+                    <div class="result-value">$${parseInt(pipelineValue).toLocaleString()}</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="result-item">
+                    <div class="result-label">Annual Deals Closed</div>
+                    <div class="result-value">${annualDeals}</div>
+                  </div>
+                  <div class="result-item">
+                    <div class="result-label">Annual ROI</div>
+                    <div class="result-value">${roi}x</div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-    // Subtitle
-    doc.setTextColor(...lightColor);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Based on your podcast metrics, here\'s your projected annual impact:', 15, 60);
+            <h2>Your #1 Growth Opportunity</h2>
 
-    // Results section header
-    doc.setTextColor(...darkColor);
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Projected Results', 15, 75);
+            <div class="lever-box">
+              <div class="lever-title">Optimize: ${biggestLever}</div>
+              <div class="lever-text">
+                <strong>Action:</strong> ${leverAction}
+              </div>
+              <div class="lever-text">
+                <strong>Why it matters:</strong> ${leverRationale}
+              </div>
+            </div>
 
-    // Results background
-    doc.setFillColor(...creamColor);
-    doc.setDrawColor(220, 220, 220);
-    doc.setLineWidth(0.5);
-    doc.rect(15, 80, 180, 70, 'FD');
+            <p class="footer-text">
+              Making this one change could significantly improve your podcast ROI. Start with this lever, measure the results, and iterate from there.
+            </p>
 
-    // Results grid - 2x2
-    const resultItemWidth = 85;
-    const resultItemHeight = 30;
-    const col1X = 25;
-    const col2X = 110;
-    const row1Y = 85;
-    const row2Y = 120;
+            <div class="powered-by">
+              Powered by Fame
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
 
-    // Monthly Leads
-    doc.setTextColor(...lightColor);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Monthly Leads', col1X, row1Y);
-    doc.setTextColor(...pinkColor);
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text(monthlyLeads.toString(), col1X, row1Y + 12);
+    // Set content and generate PDF
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    const pdfBuffer = await page.pdf({ format: 'A4', margin: { top: 0, right: 0, bottom: 0, left: 0 } });
 
-    // Annual Deals Closed
-    doc.setTextColor(...lightColor);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Annual Deals Closed', col2X, row1Y);
-    doc.setTextColor(...pinkColor);
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text(annualDeals.toString(), col2X, row1Y + 12);
-
-    // Pipeline Value
-    doc.setTextColor(...lightColor);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Pipeline Value', col1X, row2Y);
-    doc.setTextColor(...pinkColor);
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`$${parseInt(pipelineValue).toLocaleString()}`, col1X, row2Y + 12);
-
-    // Annual ROI
-    doc.setTextColor(...lightColor);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Annual ROI', col2X, row2Y);
-    doc.setTextColor(...pinkColor);
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${roi}x`, col2X, row2Y + 12);
-
-    // Growth Opportunity section
-    doc.setTextColor(...darkColor);
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Your #1 Growth Opportunity', 15, 165);
-
-    // Opportunity box
-    doc.setFillColor(255, 232, 240); // #ffe8f0
-    doc.setDrawColor(...pinkColor);
-    doc.setLineWidth(0.75);
-    doc.rect(15, 172, 180, 85, 'FD');
-
-    // Lever name
-    doc.setTextColor(...pinkColor);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Optimize: ${biggestLever}`, 22, 183);
-
-    // Action
-    doc.setTextColor(...darkColor);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    const actionLines = doc.splitTextToSize(`Action: ${leverAction}`, 165);
-    doc.text(actionLines, 22, 193);
-
-    // Rationale
-    const rationaleStartY = 193 + (actionLines.length * 4) + 4;
-    const rationaleLines = doc.splitTextToSize(`Why it matters: ${leverRationale}`, 165);
-    doc.text(rationaleLines, 22, rationaleStartY);
-
-    // Footer message
-    doc.setTextColor(...lightColor);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Making this one change could significantly improve your podcast ROI.', 15, 265);
-    doc.text('Start with this lever, measure the results, and iterate from there.', 15, 271);
-
-    // Powered by Fame
-    doc.setTextColor(...lightColor);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.text('Powered by Fame', 15, 285);
+    await browser.close();
 
     // Set response headers
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="podcast-roi-report.pdf"`);
 
-    // Send PDF as buffer
-    const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+    // Send PDF
     res.end(pdfBuffer);
   } catch (error) {
     console.error('PDF generation error:', error);
