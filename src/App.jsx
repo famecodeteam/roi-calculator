@@ -480,7 +480,7 @@ export default function App() {
     background: 'white',
     borderRadius: '12px',
     padding: '40px',
-    maxWidth: '500px',
+    maxWidth: '900px',
     width: '100%',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
     fontFamily: 'Figtree, sans-serif !important'
