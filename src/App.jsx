@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, X, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { getResourceForLever } from './blogResources';
 
 export default function App() {
@@ -11,7 +11,6 @@ export default function App() {
   const [closeRate, setCloseRate] = useState(15);
   const [monthlyPodcastCost, setMonthlyPodcastCost] = useState(2000);
   const [interestedInGuests, setInterestedInGuests] = useState(true);
-  const [email, setEmail] = useState('');
   const [reportData, setReportData] = useState(null);
 
   const calculateResults = () => {
@@ -52,33 +51,6 @@ export default function App() {
     };
   };
 
-  const generateRandomId = () => {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  };
-
-  const generateReportURL = (lever, results) => {
-    const reportId = generateRandomId();
-    const params = new URLSearchParams({
-      email: email,
-      episodesPerMonth: episodesPerMonth,
-      avgDownloads: avgDownloads,
-      dealSize: dealSize,
-      closeRate: closeRate,
-      monthlyPodcastCost: monthlyPodcastCost,
-      biggestLever: lever.name,
-      monthlyLeads: results.monthlyLeads,
-      annualDeals: results.annualDeals,
-      pipelineValue: results.pipelineValue,
-      roi: results.roi,
-      leverAction: lever.action,
-      leverRationale: lever.rationale,
-      interestedInGuests: interestedInGuests ? 'Yes' : 'No'
-    });
-    const domain = typeof window !== 'undefined' && window.location.hostname
-      ? window.location.hostname
-      : 'roi.fame.so';
-    return `https://${domain}/api/report/${reportId}?${params.toString()}`;
-  };
 
   const identifyBiggestLever = () => {
     const metrics = [
@@ -155,12 +127,10 @@ export default function App() {
     return sorted[0];
   };
 
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleShowReport = async () => {
     const results = calculateResults();
     const lever = identifyBiggestLever();
-    const reportURL = generateReportURL(lever, results);
+    const blogResource = getResourceForLever(lever.name, interestedInGuests);
 
     setReportData({
       results,
@@ -176,9 +146,9 @@ export default function App() {
       }
     });
 
+    // Send data to Zapier
     try {
       const formData = new URLSearchParams();
-      formData.append('email', email);
       formData.append('episodesPerMonth', episodesPerMonth);
       formData.append('avgDownloads', avgDownloads);
       formData.append('guestSeniority', guestSeniority);
@@ -192,18 +162,22 @@ export default function App() {
       formData.append('roi', results.roi);
       formData.append('timestamp', new Date().toISOString());
       formData.append('biggestLever', lever.name);
-      formData.append('reportURL', reportURL);
+      formData.append('leverAction', lever.action);
+      formData.append('leverRationale', lever.rationale);
+      if (blogResource) {
+        formData.append('blogPostTitle', blogResource.title);
+        formData.append('blogPostUrl', blogResource.url);
+      }
 
       await fetch('https://hooks.zapier.com/hooks/catch/5322222/upo96yz/', {
         method: 'POST',
         body: formData
       });
-
-      setScreen('report');
     } catch (error) {
       console.error('Error sending to Zapier:', error);
-      setScreen('report');
     }
+
+    setScreen('report');
   };
 
   const handlePrintReport = () => {
@@ -668,7 +642,7 @@ export default function App() {
 
                 <button
                   style={buttonStyle}
-                  onClick={() => setScreen('email')}
+                  onClick={handleShowReport}
                 >
                   See Full Report
                 </button>
@@ -681,42 +655,6 @@ export default function App() {
           </div>
         </div>
       </>
-    );
-  }
-
-  // Email Modal Screen
-  if (screen === 'email') {
-    return (
-      <div style={modalOverlayStyle}>
-        <div style={modalStyle}>
-          <button style={exitButtonStyle} onClick={() => setScreen('calculator')}>
-            <X size={24} />
-          </button>
-          <div style={headerBoxStyle}>B2B Podcast ROI Calculator</div>
-          <h2 style={headerStyle}>Get Your Full Report</h2>
-          <p style={descriptionStyle}>
-            Enter your email to receive detailed insights and a custom action plan.
-          </p>
-          <form onSubmit={handleEmailSubmit}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={inputStyle}
-            />
-            <button type="submit" style={buttonStyle}>
-              <Mail size={18} style={{ marginRight: '8px', verticalAlign: 'middle', fontFamily: 'Figtree, sans-serif !important' }} />
-              Send My Report
-            </button>
-          </form>
-
-          <div style={footerStyle}>
-            Powered by <a href="https://fame.so" target="_blank" rel="noopener noreferrer" style={footerLinkStyle}>Fame</a>
-          </div>
-        </div>
-      </div>
     );
   }
 
