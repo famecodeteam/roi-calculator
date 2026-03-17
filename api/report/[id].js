@@ -1,6 +1,34 @@
 import puppeteer from 'puppeteer-core';
 import chrome from '@sparticuz/chromium';
 
+// Blog resources mapped to levers
+const blogResources = {
+  'Average Downloads': {
+    title: 'How to Promote a Podcast - The Ultimate Guide',
+    url: 'https://www.fame.so/blog/how-to-promote-a-podcast'
+  },
+  'Guest Strategy': {
+    title: 'How to Build Credibility With a B2B Podcast',
+    url: 'https://www.fame.so/blog/how-to-build-credibility-with-a-b2b-podcast'
+  },
+  'Monthly Podcast Cost': {
+    title: 'How to reduce customer acquisition cost: Practical strategies for 2026 growth',
+    url: 'https://www.fame.so/blog/how-to-reduce-customer-acquisition-cost'
+  },
+  'Sales Close Rate': {
+    title: 'What Is Strategic Positioning And How To Master It In B2B',
+    url: 'https://www.fame.so/blog/strategic-positioning-b2b'
+  },
+  'Episodes Per Month': {
+    title: 'How to Promote a Podcast - The Ultimate Guide',
+    url: 'https://www.fame.so/blog/how-to-promote-a-podcast'
+  },
+  'Deal Size': {
+    title: 'What Is Strategic Positioning And How To Master It In B2B',
+    url: 'https://www.fame.so/blog/strategic-positioning-b2b'
+  }
+};
+
 export default async function handler(req, res) {
   // Only allow GET requests
   if (req.method !== 'GET') {
@@ -24,6 +52,9 @@ export default async function handler(req, res) {
       leverAction,
       leverRationale
     } = req.query;
+
+    // Get relevant blog resource for this lever
+    const blogResource = blogResources[biggestLever];
 
     // Launch browser
     const browser = await puppeteer.launch({
@@ -148,6 +179,20 @@ export default async function handler(req, res) {
               margin-top: 20px;
               text-align: center;
             }
+            .blog-link {
+              margin-top: 16px;
+              padding-top: 16px;
+              border-top: 1px solid rgba(255, 70, 124, 0.2);
+            }
+            .blog-link a {
+              font-size: 13px;
+              font-weight: 600;
+              color: #ff467c;
+              text-decoration: none;
+            }
+            .blog-link a:hover {
+              text-decoration: underline;
+            }
             @media print {
               body {
                 background: white;
@@ -201,6 +246,11 @@ export default async function handler(req, res) {
               <div class="lever-text">
                 <strong>Why it matters:</strong> ${leverRationale}
               </div>
+              ${blogResource ? `
+              <div class="blog-link">
+                <a href="${blogResource.url}" target="_blank">→ Read: ${blogResource.title}</a>
+              </div>
+              ` : ''}
             </div>
 
             <p class="footer-text">

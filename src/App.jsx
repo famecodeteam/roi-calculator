@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, X, Download } from 'lucide-react';
+import { getResourceForLever } from './blogResources';
 
 export default function App() {
   const [screen, setScreen] = useState('calculator');
@@ -761,6 +762,24 @@ export default function App() {
             <div style={leverTextStyle}>
               <strong>Why it matters:</strong> {reportData.lever.rationale}
             </div>
+            {getResourceForLever(reportData.lever.name) && (
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255, 70, 124, 0.2)' }}>
+                <a
+                  href={getResourceForLever(reportData.lever.name).url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: '#ff467c',
+                    textDecoration: 'none',
+                    fontFamily: 'Figtree, sans-serif !important'
+                  }}
+                >
+                  → Read: {getResourceForLever(reportData.lever.name).title}
+                </a>
+              </div>
+            )}
           </div>
 
           <p style={{ ...descriptionStyle, marginTop: '32px', color: '#666', fontSize: '14px' }}>
