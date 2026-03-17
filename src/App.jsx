@@ -481,7 +481,7 @@ export default function App() {
     background: 'white',
     borderRadius: '12px',
     padding: '40px',
-    maxWidth: '900px',
+    maxWidth: '500px',
     width: '100%',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
     fontFamily: 'Figtree, sans-serif !important'
@@ -773,16 +773,14 @@ export default function App() {
             Download / Print Report
           </button>
 
-          <button 
-            style={{ ...buttonStyle, background: '#f0f0f0', color: '#2e2e2e', marginTop: '12px' }}
-            onClick={() => {
-              setScreen('calculator');
-              setEmail('');
-              setReportData(null);
-            }}
+          <a
+            href="https://www.fame.so/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ ...buttonStyle, display: 'block', textAlign: 'center', textDecoration: 'none', marginTop: '12px' }}
           >
-            Recalculate
-          </button>
+            Check Out Fame
+          </a>
         </div>
 
         <div style={footerStyle}>
