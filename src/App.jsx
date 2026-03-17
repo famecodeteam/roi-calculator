@@ -13,6 +13,7 @@ export default function App() {
   const [interestedInGuests, setInterestedInGuests] = useState(true);
   const [email, setEmail] = useState('');
   const [reportData, setReportData] = useState(null);
+  const [pendingReportData, setPendingReportData] = useState(null);
 
   const calculateResults = () => {
     const episodes = parseInt(episodesPerMonth) || 0;
@@ -128,14 +129,15 @@ export default function App() {
     return sorted[0];
   };
 
-  const handleShowReport = async () => {
+  const handleShowReport = () => {
     const results = calculateResults();
     const lever = identifyBiggestLever();
     const blogResource = getResourceForLever(lever.name, interestedInGuests);
 
-    setReportData({
+    setPendingReportData({
       results,
       lever,
+      blogResource,
       inputs: {
         episodesPerMonth,
         avgDownloads,
@@ -143,7 +145,25 @@ export default function App() {
         dealSize,
         closeRate,
         monthlyPodcastCost,
-        interestedInGuests,
+        interestedInGuests
+      }
+    });
+
+    setScreen('emailModal');
+  };
+
+  const handleEmailSubmit = async () => {
+    if (!email.trim()) {
+      return;
+    }
+
+    const { results, lever, blogResource, inputs } = pendingReportData;
+
+    setReportData({
+      results,
+      lever,
+      inputs: {
+        ...inputs,
         email
       }
     });
@@ -152,13 +172,13 @@ export default function App() {
     try {
       const formData = new URLSearchParams();
       formData.append('email', email);
-      formData.append('episodesPerMonth', episodesPerMonth);
-      formData.append('avgDownloads', avgDownloads);
-      formData.append('guestSeniority', guestSeniority);
-      formData.append('dealSize', dealSize);
-      formData.append('closeRate', closeRate);
-      formData.append('monthlyPodcastCost', monthlyPodcastCost);
-      formData.append('interestedInGuests', interestedInGuests ? 'Yes' : 'No');
+      formData.append('episodesPerMonth', inputs.episodesPerMonth);
+      formData.append('avgDownloads', inputs.avgDownloads);
+      formData.append('guestSeniority', inputs.guestSeniority);
+      formData.append('dealSize', inputs.dealSize);
+      formData.append('closeRate', inputs.closeRate);
+      formData.append('monthlyPodcastCost', inputs.monthlyPodcastCost);
+      formData.append('interestedInGuests', inputs.interestedInGuests ? 'Yes' : 'No');
       formData.append('projectedLeads', results.monthlyLeads);
       formData.append('projectedDeals', results.annualDeals);
       formData.append('projectedPipelineValue', results.pipelineValue);
@@ -180,6 +200,8 @@ export default function App() {
       console.error('Error sending to Zapier:', error);
     }
 
+    setEmail('');
+    setPendingReportData(null);
     setScreen('report');
   };
 
@@ -379,19 +401,22 @@ export default function App() {
     fontFamily: 'Figtree, sans-serif !important'
   };
 
-  const buttonStyle = {
+  const getButtonStyle = (disabled = false) => ({
     width: '100%',
     padding: '14px 24px',
-    background: '#ff467c',
+    background: disabled ? '#ccc' : '#ff467c',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     fontSize: '16px',
     fontWeight: '600',
-    cursor: 'pointer',
+    cursor: disabled ? 'not-allowed' : 'pointer',
     fontFamily: 'Figtree, sans-serif !important',
-    transition: 'background 0.3s ease'
-  };
+    transition: 'background 0.3s ease',
+    opacity: disabled ? 0.6 : 1
+  });
+
+  const buttonStyle = getButtonStyle();
 
   const inputStyle = {
     width: '100%',
@@ -474,17 +499,6 @@ export default function App() {
             <p style={descriptionStyle}>
               Calculate your projected revenue impact and pipeline value based on your show's strategy, metrics and cadence.
             </p>
-
-            <div style={{ marginBottom: '32px' }}>
-              <label style={labelStyle}>Email Address</label>
-              <input
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={inputStyle}
-              />
-            </div>
 
             <div style={layoutStyle}>
               <div>
@@ -633,6 +647,56 @@ export default function App() {
           </div>
         </div>
       </>
+    );
+  }
+
+  // Email Modal Screen
+  if (screen === 'emailModal' && pendingReportData) {
+    return (
+      <div style={containerStyle}>
+        <div style={{
+          background: 'white',
+          borderRadius: '12px',
+          padding: '40px',
+          maxWidth: '500px',
+          width: '100%',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          fontFamily: 'Figtree, sans-serif !important'
+        }}>
+          <div style={headerBoxStyle}>B2B Podcast ROI Calculator</div>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#2e2e2e', marginBottom: '12px', fontFamily: 'Figtree, sans-serif !important' }}>
+            Get Your Full Report
+          </h2>
+          <p style={{ fontSize: '14px', color: '#666', marginBottom: '24px', lineHeight: '1.6', fontFamily: 'Figtree, sans-serif !important' }}>
+            Enter your email to receive your personalized ROI report and actionable recommendations.
+          </p>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label style={labelStyle}>Email Address</label>
+            <input
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleEmailSubmit()}
+              style={inputStyle}
+              autoFocus
+            />
+          </div>
+
+          <button
+            style={getButtonStyle(!email.trim())}
+            onClick={handleEmailSubmit}
+            disabled={!email.trim()}
+          >
+            View Report
+          </button>
+
+          <div style={footerStyle}>
+            We'll send your recommendations to this email
+          </div>
+        </div>
+      </div>
     );
   }
 
