@@ -151,8 +151,9 @@ export default function handler(req, res) {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="podcast-roi-report.pdf"`);
 
-    // Send PDF
-    res.send(doc.output('arraybuffer'));
+    // Send PDF as buffer
+    const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+    res.end(pdfBuffer);
   } catch (error) {
     console.error('PDF generation error:', error);
     res.status(500).json({ error: 'Failed to generate PDF' });
