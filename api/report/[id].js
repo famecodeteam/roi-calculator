@@ -27,125 +27,132 @@ export default function handler(req, res) {
     // Create PDF
     const doc = new jsPDF();
 
-    // Set font
-    doc.setFont('Figtree', 'normal');
-
     // Colors (Fame brand)
     const pinkColor = [255, 70, 124]; // #ff467c
     const darkColor = [46, 46, 46]; // #2e2e2e
     const lightColor = [153, 153, 153]; // #999
+    const creamColor = [248, 241, 235]; // #f8f1eb
 
-    // Header box
+    // Header
     doc.setFillColor(...pinkColor);
-    doc.rect(20, 20, 170, 12, 'F');
+    doc.rect(0, 0, 210, 30, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont('Figtree', 'bold');
-    doc.text('B2B PODCAST ROI CALCULATOR', 25, 28);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('B2B PODCAST ROI CALCULATOR', 15, 18);
 
     // Title
     doc.setTextColor(...darkColor);
-    doc.setFontSize(28);
-    doc.setFont('Figtree', 'bold');
-    doc.text('Your Podcast ROI Report', 20, 50);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Your Podcast ROI Report', 15, 50);
 
     // Subtitle
     doc.setTextColor(...lightColor);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Based on your podcast metrics, here\'s your projected annual impact:', 15, 60);
+
+    // Results section header
+    doc.setTextColor(...darkColor);
     doc.setFontSize(12);
-    doc.setFont('Figtree', 'normal');
-    doc.text('Based on your podcast metrics, here\'s your projected annual impact:', 20, 60);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Projected Results', 15, 75);
 
-    // Results section
-    doc.setFillColor(248, 241, 235); // #f8f1eb
-    doc.rect(20, 70, 170, 80, 'F');
+    // Results background
+    doc.setFillColor(...creamColor);
+    doc.rect(15, 80, 180, 70, 'F');
 
-    doc.setTextColor(...lightColor);
-    doc.setFontSize(10);
-    doc.setFont('Figtree', 'normal');
-
-    // Results grid
-    const col1X = 30;
+    // Results grid - 2x2
+    const resultItemWidth = 85;
+    const resultItemHeight = 30;
+    const col1X = 25;
     const col2X = 110;
-    const row1Y = 78;
-    const row2Y = 98;
-    const row3Y = 118;
-    const row4Y = 138;
+    const row1Y = 85;
+    const row2Y = 120;
 
+    // Monthly Leads
+    doc.setTextColor(...lightColor);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
     doc.text('Monthly Leads', col1X, row1Y);
     doc.setTextColor(...pinkColor);
-    doc.setFont('Figtree', 'bold');
-    doc.setFontSize(18);
-    doc.text(monthlyLeads, col1X, row1Y + 10);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(monthlyLeads.toString(), col1X, row1Y + 12);
 
+    // Annual Deals Closed
     doc.setTextColor(...lightColor);
-    doc.setFont('Figtree', 'normal');
-    doc.setFontSize(10);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
     doc.text('Annual Deals Closed', col2X, row1Y);
     doc.setTextColor(...pinkColor);
-    doc.setFont('Figtree', 'bold');
-    doc.setFontSize(18);
-    doc.text(annualDeals, col2X, row1Y + 10);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(annualDeals.toString(), col2X, row1Y + 12);
 
+    // Pipeline Value
     doc.setTextColor(...lightColor);
-    doc.setFont('Figtree', 'normal');
-    doc.setFontSize(10);
-    doc.text('Pipeline Value', col1X, row3Y);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Pipeline Value', col1X, row2Y);
     doc.setTextColor(...pinkColor);
-    doc.setFont('Figtree', 'bold');
-    doc.setFontSize(18);
-    doc.text(`$${parseInt(pipelineValue).toLocaleString()}`, col1X, row3Y + 10);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`$${parseInt(pipelineValue).toLocaleString()}`, col1X, row2Y + 12);
 
+    // Annual ROI
     doc.setTextColor(...lightColor);
-    doc.setFont('Figtree', 'normal');
-    doc.setFontSize(10);
-    doc.text('Annual ROI', col2X, row3Y);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Annual ROI', col2X, row2Y);
     doc.setTextColor(...pinkColor);
-    doc.setFont('Figtree', 'bold');
-    doc.setFontSize(18);
-    doc.text(`${roi}x`, col2X, row3Y + 10);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${roi}x`, col2X, row2Y + 12);
 
-    // Opportunity section
+    // Growth Opportunity section
     doc.setTextColor(...darkColor);
-    doc.setFontSize(16);
-    doc.setFont('Figtree', 'bold');
-    doc.text('Your #1 Growth Opportunity', 20, 165);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Your #1 Growth Opportunity', 15, 165);
 
     // Opportunity box
     doc.setFillColor(255, 232, 240); // #ffe8f0
     doc.setDrawColor(...pinkColor);
-    doc.setLineWidth(0.5);
-    doc.rect(20, 173, 170, 90, 'FD');
+    doc.setLineWidth(0.75);
+    doc.rect(15, 172, 180, 85, 'FD');
 
     // Lever name
     doc.setTextColor(...pinkColor);
-    doc.setFontSize(12);
-    doc.setFont('Figtree', 'bold');
-    doc.text(`Optimize: ${biggestLever}`, 25, 183);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Optimize: ${biggestLever}`, 22, 183);
 
     // Action
     doc.setTextColor(...darkColor);
     doc.setFontSize(9);
-    doc.setFont('Figtree', 'normal');
-    const actionLines = doc.splitTextToSize(`Action: ${leverAction}`, 160);
-    doc.text(actionLines, 25, 193);
+    doc.setFont('helvetica', 'normal');
+    const actionLines = doc.splitTextToSize(`Action: ${leverAction}`, 165);
+    doc.text(actionLines, 22, 193);
 
     // Rationale
-    const rationaleStartY = 193 + (actionLines.length * 4) + 5;
-    const rationaleLines = doc.splitTextToSize(`Why it matters: ${leverRationale}`, 160);
-    doc.text(rationaleLines, 25, rationaleStartY);
+    const rationaleStartY = 193 + (actionLines.length * 4) + 4;
+    const rationaleLines = doc.splitTextToSize(`Why it matters: ${leverRationale}`, 165);
+    doc.text(rationaleLines, 22, rationaleStartY);
 
     // Footer message
     doc.setTextColor(...lightColor);
-    doc.setFontSize(9);
-    doc.setFont('Figtree', 'normal');
-    const footerY = 270;
-    doc.text('Making this one change could significantly improve your podcast ROI.', 20, footerY);
-    doc.text('Start with this lever, measure the results, and iterate from there.', 20, footerY + 6);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Making this one change could significantly improve your podcast ROI.', 15, 265);
+    doc.text('Start with this lever, measure the results, and iterate from there.', 15, 271);
 
     // Powered by Fame
     doc.setTextColor(...lightColor);
     doc.setFontSize(8);
-    doc.text('Powered by Fame', 20, 285);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Powered by Fame', 15, 285);
 
     // Set response headers
     res.setHeader('Content-Type', 'application/pdf');
