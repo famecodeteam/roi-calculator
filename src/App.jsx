@@ -393,42 +393,6 @@ export default function App() {
     transition: 'background 0.3s ease'
   };
 
-  const modalOverlayStyle = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    zIndex: 1000
-  };
-
-  const modalStyle = {
-    background: 'white',
-    borderRadius: '12px',
-    padding: '40px',
-    maxWidth: '500px',
-    width: '100%',
-    position: 'relative',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-    fontFamily: 'Figtree, sans-serif !important'
-  };
-
-  const exitButtonStyle = {
-    position: 'absolute',
-    top: '20px',
-    right: '20px',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    color: '#999',
-    padding: '8px'
-  };
-
   const inputStyle = {
     width: '100%',
     padding: '12px 16px',
