@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, X } from 'lucide-react';
+import { Mail, X, Download } from 'lucide-react';
 
 export default function App() {
   const [screen, setScreen] = useState('calculator');
@@ -11,6 +11,7 @@ export default function App() {
   const [monthlyPodcastCost, setMonthlyPodcastCost] = useState(2000);
   const [interestedInGuests, setInterestedInGuests] = useState(true);
   const [email, setEmail] = useState('');
+  const [reportData, setReportData] = useState(null);
 
   const calculateResults = () => {
     const episodes = parseInt(episodesPerMonth) || 0;
@@ -44,15 +45,108 @@ export default function App() {
       monthlyLeads: leads,
       annualDeals: deals,
       pipelineValue: pipeline,
-      roi: roiValue
+      roi: roiValue,
+      monthlyImpressions,
+      costAnnual
     };
+  };
+
+  const identifyBiggestLever = () => {
+    const results = calculateResults();
+    const metrics = [
+      {
+        name: 'Sales Close Rate',
+        current: closeRate,
+        max: 100,
+        impact: 'high',
+        action: `Improve your sales process to increase close rate from ${closeRate}% to ${closeRate + 5}%`,
+        rationale: 'Converting more leads into deals directly increases pipeline value.',
+        ease: 'medium'
+      },
+      {
+        name: 'Average Downloads',
+        current: avgDownloads,
+        max: 50000,
+        impact: 'high',
+        action: `Improve episode promotion strategy to increase downloads from ${avgDownloads.toLocaleString()} to ${Math.round(avgDownloads * 1.2).toLocaleString()}`,
+        rationale: 'More listeners per episode directly increases your reach and lead generation.',
+        ease: 'medium'
+      },
+      {
+        name: 'Monthly Podcast Cost',
+        current: monthlyPodcastCost,
+        max: 10000,
+        impact: 'direct',
+        action: `Negotiate lower production costs or find efficiency gains to reduce costs from $${monthlyPodcastCost.toLocaleString()} to $${Math.round(monthlyPodcastCost * 0.8).toLocaleString()}`,
+        rationale: 'Lower costs directly improve your ROI multiplier without needing more leads.',
+        ease: 'high'
+      },
+      {
+        name: 'Episodes Per Month',
+        current: episodesPerMonth,
+        max: 16,
+        impact: 'medium',
+        action: `Increase publishing frequency from ${episodesPerMonth} to ${episodesPerMonth + 1} episodes per month`,
+        rationale: 'More episodes increase your total audience reach and guest opportunities.',
+        ease: 'high'
+      },
+      {
+        name: 'Guest Strategy',
+        current: interestedInGuests ? 1 : 0,
+        max: 1,
+        impact: 'medium',
+        action: `Develop a systematic guest acquisition strategy to bring on ${interestedInGuests ? 'more' : 'high-value'} guests each month`,
+        rationale: 'Guests add both audience reach and conversion rate improvements.',
+        ease: interestedInGuests ? 'medium' : 'high'
+      },
+      {
+        name: 'Deal Size',
+        current: dealSize,
+        max: 500000,
+        impact: 'high',
+        action: `Focus on higher-value contracts or expansion deals to increase average deal size from $${dealSize.toLocaleString()} to $${Math.round(dealSize * 1.2).toLocaleString()}`,
+        rationale: 'Larger deals directly multiply your pipeline value.',
+        ease: 'low'
+      }
+    ];
+
+    // Score each metric by room for improvement
+    const scored = metrics.map(m => ({
+      ...m,
+      percentageOfMax: (m.current / m.max) * 100,
+      opportunity: m.max - m.current
+    }));
+
+    // Prioritize by: lowest % of max, then by ease, then by impact
+    const sorted = scored.sort((a, b) => {
+      const aScore = a.percentageOfMax - (a.ease === 'high' ? 10 : a.ease === 'medium' ? 5 : 0);
+      const bScore = b.percentageOfMax - (b.ease === 'high' ? 10 : b.ease === 'medium' ? 5 : 0);
+      return aScore - bScore;
+    });
+
+    return sorted[0];
   };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     
     const results = calculateResults();
+    const lever = identifyBiggestLever();
     
+    setReportData({
+      results,
+      lever,
+      inputs: {
+        episodesPerMonth,
+        avgDownloads,
+        guestSeniority,
+        dealSize,
+        closeRate,
+        monthlyPodcastCost,
+        interestedInGuests
+      }
+    });
+
     try {
       const formData = new URLSearchParams();
       formData.append('email', email);
@@ -68,17 +162,22 @@ export default function App() {
       formData.append('projectedPipelineValue', results.pipelineValue);
       formData.append('roi', results.roi);
       formData.append('timestamp', new Date().toISOString());
+      formData.append('biggestLever', lever.name);
 
       await fetch('https://hooks.zapier.com/hooks/catch/5322222/upo96yz/', {
         method: 'POST',
         body: formData
       });
 
-      setScreen('thankyou');
+      setScreen('report');
     } catch (error) {
       console.error('Error sending to Zapier:', error);
-      setScreen('thankyou');
+      setScreen('report');
     }
+  };
+
+  const handlePrintReport = () => {
+    window.print();
   };
 
   const results = calculateResults();
@@ -177,7 +276,6 @@ export default function App() {
     fontFamily: 'Figtree, sans-serif !important'
   };
 
-  // Add webkit styles for slider thumb
   const sliderStyleWithThumb = `
     input[type="range"] {
       -webkit-appearance: none;
@@ -350,6 +448,50 @@ export default function App() {
     fontFamily: 'Figtree, sans-serif !important'
   };
 
+  const reportStyle = {
+    background: 'white',
+    borderRadius: '12px',
+    padding: '40px',
+    maxWidth: '900px',
+    width: '100%',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+    fontFamily: 'Figtree, sans-serif !important'
+  };
+
+  const leverBoxStyle = {
+    background: '#ffe8f0',
+    border: '2px solid #ff467c',
+    borderRadius: '8px',
+    padding: '24px',
+    marginTop: '24px'
+  };
+
+  const leverTitleStyle = {
+    fontSize: '18px',
+    fontWeight: '700',
+    color: '#ff467c',
+    marginBottom: '12px',
+    fontFamily: 'Figtree, sans-serif !important'
+  };
+
+  const leverTextStyle = {
+    fontSize: '14px',
+    color: '#2e2e2e',
+    lineHeight: '1.6',
+    marginBottom: '12px',
+    fontFamily: 'Figtree, sans-serif !important'
+  };
+
+  const downloadButtonStyle = {
+    ...buttonStyle,
+    marginTop: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px'
+  };
+
+  // Calculator Screen
   if (screen === 'calculator') {
     return (
       <>
@@ -443,7 +585,7 @@ export default function App() {
                 </div>
 
                 <div style={sliderContainerStyle}>
-                  <div style={labelStyle}>Guest seniority level</div>
+                  <label style={labelStyle}>Guest seniority level</label>
                   <select
                     value={guestSeniority}
                     onChange={(e) => setGuestSeniority(e.target.value)}
@@ -512,6 +654,7 @@ export default function App() {
     );
   }
 
+  // Email Modal Screen
   if (screen === 'email') {
     return (
       <div style={modalOverlayStyle}>
@@ -547,23 +690,69 @@ export default function App() {
     );
   }
 
-  if (screen === 'thankyou') {
+  // Report Screen
+  if (screen === 'report' && reportData) {
     return (
       <div style={containerStyle}>
-        <div style={cardStyle}>
+        <div style={reportStyle}>
           <div style={headerBoxStyle}>B2B Podcast ROI Calculator</div>
-          <h2 style={headerStyle}>Thank You!</h2>
+          <h1 style={headerStyle}>Your Podcast ROI Report</h1>
+          
           <p style={descriptionStyle}>
-            We've sent your report to {email}. Check your inbox for next steps.
+            Based on your podcast metrics, here's your projected annual impact:
           </p>
-          <button
-            style={buttonStyle}
+
+          <div style={resultsBoxStyle}>
+            <div style={resultItemStyle}>
+              <div style={resultLabelStyle}>Monthly Leads</div>
+              <div style={resultValueStyle}>{reportData.results.monthlyLeads}</div>
+            </div>
+            <div style={resultItemStyle}>
+              <div style={resultLabelStyle}>Annual Deals Closed</div>
+              <div style={resultValueStyle}>{reportData.results.annualDeals}</div>
+            </div>
+            <div style={resultItemStyle}>
+              <div style={resultLabelStyle}>Projected Pipeline Value</div>
+              <div style={resultValueStyle}>${reportData.results.pipelineValue.toLocaleString()}</div>
+            </div>
+            <div style={resultItemLastStyle}>
+              <div style={resultLabelStyle}>Annual ROI</div>
+              <div style={resultValueStyle}>{reportData.results.roi}x</div>
+            </div>
+          </div>
+
+          <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#2e2e2e', marginTop: '32px', marginBottom: '16px', fontFamily: 'Figtree, sans-serif !important' }}>
+            Your #1 Growth Opportunity
+          </h2>
+
+          <div style={leverBoxStyle}>
+            <div style={leverTitleStyle}>Optimize: {reportData.lever.name}</div>
+            <div style={leverTextStyle}>
+              <strong>Action:</strong> {reportData.lever.action}
+            </div>
+            <div style={leverTextStyle}>
+              <strong>Why it matters:</strong> {reportData.lever.rationale}
+            </div>
+          </div>
+
+          <p style={{ ...descriptionStyle, marginTop: '32px', color: '#666', fontSize: '14px' }}>
+            Making this one change could significantly improve your podcast ROI. Start with this lever, measure the results, and iterate from there.
+          </p>
+
+          <button style={downloadButtonStyle} onClick={handlePrintReport}>
+            <Download size={18} />
+            Download / Print Report
+          </button>
+
+          <button 
+            style={{ ...buttonStyle, background: '#f0f0f0', color: '#2e2e2e', marginTop: '12px' }}
             onClick={() => {
               setScreen('calculator');
               setEmail('');
+              setReportData(null);
             }}
           >
-            Calculate Again
+            Recalculate
           </button>
         </div>
 
