@@ -51,6 +51,33 @@ export default function App() {
     };
   };
 
+  const generateRandomId = () => {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  };
+
+  const generateReportURL = (lever, results) => {
+    const reportId = generateRandomId();
+    const params = new URLSearchParams({
+      email: email,
+      episodesPerMonth: episodesPerMonth,
+      avgDownloads: avgDownloads,
+      dealSize: dealSize,
+      closeRate: closeRate,
+      monthlyPodcastCost: monthlyPodcastCost,
+      biggestLever: lever.name,
+      monthlyLeads: results.monthlyLeads,
+      annualDeals: results.annualDeals,
+      pipelineValue: results.pipelineValue,
+      roi: results.roi,
+      leverAction: lever.action,
+      leverRationale: lever.rationale
+    });
+    const domain = typeof window !== 'undefined' && window.location.hostname
+      ? window.location.hostname
+      : 'roi.fame.so';
+    return `https://${domain}/api/report/${reportId}?${params.toString()}`;
+  };
+
   const identifyBiggestLever = () => {
     const results = calculateResults();
     const metrics = [
@@ -129,10 +156,11 @@ export default function App() {
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    
+
     const results = calculateResults();
     const lever = identifyBiggestLever();
-    
+    const reportURL = generateReportURL(lever, results);
+
     setReportData({
       results,
       lever,
@@ -163,6 +191,7 @@ export default function App() {
       formData.append('roi', results.roi);
       formData.append('timestamp', new Date().toISOString());
       formData.append('biggestLever', lever.name);
+      formData.append('reportURL', reportURL);
 
       await fetch('https://hooks.zapier.com/hooks/catch/5322222/upo96yz/', {
         method: 'POST',
