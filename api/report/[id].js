@@ -52,7 +52,7 @@ export default async function handler(req, res) {
   try {
     // Parse query parameters
     const {
-      email,
+      userEmail,
       episodesPerMonth,
       avgDownloads,
       dealSize,
@@ -272,6 +272,10 @@ export default async function handler(req, res) {
             <p class="footer-text">
               Making this one change could significantly improve your podcast ROI. Start with this lever, measure the results, and iterate from there.
             </p>
+
+            ${userEmail ? `<div style="font-size: 12px; color: #999; margin-top: 20px; text-align: center; border-top: 1px solid #e8e0d8; padding-top: 20px;">
+              Report sent to: ${userEmail}
+            </div>` : ''}
 
             <div class="powered-by">
               Powered by Fame

@@ -11,6 +11,7 @@ export default function App() {
   const [closeRate, setCloseRate] = useState(15);
   const [monthlyPodcastCost, setMonthlyPodcastCost] = useState(2000);
   const [interestedInGuests, setInterestedInGuests] = useState(true);
+  const [email, setEmail] = useState('');
   const [reportData, setReportData] = useState(null);
 
   const calculateResults = () => {
@@ -142,13 +143,15 @@ export default function App() {
         dealSize,
         closeRate,
         monthlyPodcastCost,
-        interestedInGuests
+        interestedInGuests,
+        email
       }
     });
 
     // Send data to Zapier
     try {
       const formData = new URLSearchParams();
+      formData.append('email', email);
       formData.append('episodesPerMonth', episodesPerMonth);
       formData.append('avgDownloads', avgDownloads);
       formData.append('guestSeniority', guestSeniority);
@@ -507,6 +510,17 @@ export default function App() {
             <p style={descriptionStyle}>
               Calculate your projected revenue impact and pipeline value based on your show's strategy, metrics and cadence.
             </p>
+
+            <div style={{ marginBottom: '32px' }}>
+              <label style={labelStyle}>Email Address</label>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
 
             <div style={layoutStyle}>
               <div>
