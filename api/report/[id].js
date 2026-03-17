@@ -1,45 +1,5 @@
 import { jsPDF } from 'jspdf';
 
-// Helper function to draw rounded rectangles
-function roundedRect(doc, x, y, width, height, radius, fillColor) {
-  const k = 0.55228;
-  const r = Math.min(radius, width / 2, height / 2);
-
-  // Move to starting point
-  doc.moveTo(x + r, y);
-
-  // Top line
-  doc.lineTo(x + width - r, y);
-
-  // Top-right corner
-  doc.bezierCurveTo(x + width - r * (1 - k), y, x + width, y + r * (1 - k), x + width, y + r);
-
-  // Right line
-  doc.lineTo(x + width, y + height - r);
-
-  // Bottom-right corner
-  doc.bezierCurveTo(x + width, y + height - r * (1 - k), x + width - r * (1 - k), y + height, x + width - r, y + height);
-
-  // Bottom line
-  doc.lineTo(x + r, y + height);
-
-  // Bottom-left corner
-  doc.bezierCurveTo(x + r * (1 - k), y + height, x, y + height - r * (1 - k), x, y + height - r);
-
-  // Left line
-  doc.lineTo(x, y + r);
-
-  // Top-left corner
-  doc.bezierCurveTo(x, y + r * (1 - k), x + r * (1 - k), y, x + r, y);
-
-  // Close path and fill
-  doc.closePath();
-  if (fillColor) {
-    doc.fill();
-  }
-  doc.stroke();
-}
-
 export default function handler(req, res) {
   // Only allow GET requests
   if (req.method !== 'GET') {
@@ -99,11 +59,11 @@ export default function handler(req, res) {
     doc.setFont('helvetica', 'bold');
     doc.text('Projected Results', 15, 75);
 
-    // Results background - rounded
+    // Results background
     doc.setFillColor(...creamColor);
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0);
-    roundedRect(doc, 15, 80, 180, 70, 3);
+    doc.setDrawColor(220, 220, 220);
+    doc.setLineWidth(0.5);
+    doc.rect(15, 80, 180, 70, 'FD');
 
     // Results grid - 2x2
     const resultItemWidth = 85;
@@ -159,11 +119,11 @@ export default function handler(req, res) {
     doc.setFont('helvetica', 'bold');
     doc.text('Your #1 Growth Opportunity', 15, 165);
 
-    // Opportunity box - rounded
+    // Opportunity box
     doc.setFillColor(255, 232, 240); // #ffe8f0
     doc.setDrawColor(...pinkColor);
     doc.setLineWidth(0.75);
-    roundedRect(doc, 15, 172, 180, 85, 3);
+    doc.rect(15, 172, 180, 85, 'FD');
 
     // Lever name
     doc.setTextColor(...pinkColor);
